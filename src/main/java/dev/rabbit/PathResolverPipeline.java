@@ -12,6 +12,7 @@ import org.apache.beam.sdk.io.gcp.bigquery.BigQueryIO;
 import org.apache.beam.sdk.transforms.Combine;
 import org.apache.beam.sdk.transforms.MapElements;
 import org.apache.beam.sdk.transforms.ParDo;
+import org.apache.beam.sdk.transforms.Reshuffle;
 import org.apache.beam.sdk.values.TypeDescriptors;
 
 public class PathResolverPipeline {
@@ -30,6 +31,7 @@ public class PathResolverPipeline {
                 .apply("Build the graph", Combine.globally(BuildGraph.of()))
                 .apply("Make the graph Immutable", MapElements.via(MakeImmutableFn.of()))
                 .apply("Run a DFS and resolve all possible paths", ParDo.of(ResolvePaths.of()))
+                .apply("Break Fusion", Reshuffle.viaRandomKey())
                 .apply("Map to JSON", MapElements.into(TypeDescriptors.strings()).via(Mapper.INSTANCE::toJsonString))
                 .apply("Write to GCS", TextIO.write().to("gs://resolved-paths/paths").withNumShards(options.getShardNumber()).withSuffix(".jsonl"));
 
