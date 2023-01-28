@@ -3,21 +3,22 @@ package dev.rabbit;
 import com.google.api.services.bigquery.model.TableFieldSchema;
 import com.google.api.services.bigquery.model.TableRow;
 import com.google.api.services.bigquery.model.TableSchema;
-import dev.rabbit.transform.ResolvePaths;
+import dev.rabbit.doFn.ResolvePaths;
+import dev.rabbit.function.MakeImmutableFn;
+import dev.rabbit.pojo.Path;
+import dev.rabbit.transform.BuildGraph;
 import org.apache.beam.sdk.Pipeline;
-import org.apache.beam.sdk.io.TextIO;
 import org.apache.beam.sdk.io.gcp.bigquery.BigQueryIO;
+import org.apache.beam.sdk.transforms.Combine;
 import org.apache.beam.sdk.transforms.MapElements;
-import org.apache.beam.sdk.values.TypeDescriptors;
+import org.apache.beam.sdk.transforms.ParDo;
+import org.apache.beam.sdk.values.TypeDescriptor;
 
 import java.util.Arrays;
 
 public class PathResolverPipeline {
 
     public static void run(PathResolverPipelineOptions options) {
-
-        System.out.println("Starting the algorithm.");
-        long startTime = System.currentTimeMillis();
 
         Pipeline pipeline = Pipeline.create(options);
         options.setEnableStreamingEngine(true);
@@ -27,19 +28,17 @@ public class PathResolverPipeline {
                         .withoutValidation()
                         .withTemplateCompatibility()
                         .usingStandardSql())
-                .apply("Resolve Paths", ResolvePaths.of())
-                .apply(MapElements.into(TypeDescriptors.strings()).via(TableRow::toString))
-                .apply(TextIO.write().to("output/test.jsonl").withoutSharding());
-//                .apply("Write paths to table after truncating.", BigQueryIO.writeTableRows()
-//                        .to(options.getDestinationTable())
-//                        .withCreateDisposition(BigQueryIO.Write.CreateDisposition.CREATE_IF_NEEDED)
-//                        .withWriteDisposition(BigQueryIO.Write.WriteDisposition.WRITE_TRUNCATE)
-//                        .withSchema(getSchema()));
+                .apply("Build the graph", Combine.globally(BuildGraph.of()))
+                .apply("Make the graph Immutable", MapElements.via(MakeImmutableFn.of()))
+                .apply("Run a DFS and resolve all possible paths", ParDo.of(ResolvePaths.of()))
+                .apply("Map Path objects to TableRows", MapElements.into(TypeDescriptor.of(TableRow.class)).via(Path::toTableRow))
+                .apply("Write paths to table after truncating.", BigQueryIO.writeTableRows()
+                        .to(options.getDestinationTable())
+                        .withCreateDisposition(BigQueryIO.Write.CreateDisposition.CREATE_IF_NEEDED)
+                        .withWriteDisposition(BigQueryIO.Write.WriteDisposition.WRITE_TRUNCATE)
+                        .withSchema(getSchema()));
 
         pipeline.run();
-
-        long endTime = System.currentTimeMillis();
-        System.out.println("Time Taken: " + (endTime - startTime) / 1000 + "seconds.");
     }
 
     public static TableSchema getSchema() {
@@ -57,19 +56,18 @@ public class PathResolverPipeline {
                                                 new TableFieldSchema().setName("address").setType("STRING").setMode("REQUIRED"),
                                                 new TableFieldSchema().setName("decimals").setType("INTEGER").setMode("NULLABLE"))),
                         new TableFieldSchema()
-                                .setName("exchangePath")
+                                .setName("swapPath")
                                 .setType("STRUCT")
                                 .setMode("REPEATED")
                                 .setDescription("Options for each trade along the path. A list of pools that the trade in question can be executed on.")
                                 .setFields(
                                         Arrays.asList(
-                                                new TableFieldSchema().setName("options").setType("STRUCT").setMode("REPEATED")
+                                                new TableFieldSchema().setName("exchanges").setType("STRUCT").setMode("REPEATED")
                                                         .setFields(
                                                                 Arrays.asList(
                                                                         new TableFieldSchema().setName("name").setType("STRING").setMode("REQUIRED"),
                                                                         new TableFieldSchema().setName("fee").setType("INTEGER").setMode("REQUIRED"),
                                                                         new TableFieldSchema().setName("pool").setType("STRING").setMode("REQUIRED"))),
-                                                new TableFieldSchema().setName("ordered").setType("BOOL").setMode("REQUIRED")
-                                        ))));
+                                                new TableFieldSchema().setName("ordered").setType("BOOL").setMode("REQUIRED")))));
     }
 }
