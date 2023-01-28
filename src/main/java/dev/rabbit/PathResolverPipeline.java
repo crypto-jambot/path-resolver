@@ -31,7 +31,7 @@ public class PathResolverPipeline {
                 .apply("Make the graph Immutable", MapElements.via(MakeImmutableFn.of()))
                 .apply("Run a DFS and resolve all possible paths", ParDo.of(ResolvePaths.of()))
                 .apply("Map to JSON", MapElements.into(TypeDescriptors.strings()).via(Mapper.INSTANCE::toJsonString))
-                .apply("Write to GCS", TextIO.write().to("gs://resolved-paths/paths").withNumShards(5).withSuffix(".jsonl"));
+                .apply("Write to GCS", TextIO.write().to("gs://resolved-paths/paths").withNumShards(options.getShardNumber()).withSuffix(".jsonl"));
 
         pipeline.run();
     }

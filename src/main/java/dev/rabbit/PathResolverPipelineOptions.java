@@ -24,4 +24,10 @@ public interface PathResolverPipelineOptions extends GcpOptions {
     ValueProvider<String> getDestinationTable();
 
     void setDestinationTable(ValueProvider<String> value);
+
+    @Required
+    @Default.Integer(1000)
+    ValueProvider<Integer> getShardNumber();
+
+    void setSharedNumber(ValueProvider<Integer> value);
 }
