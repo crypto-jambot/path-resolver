@@ -1,5 +1,6 @@
 package dev.rabbit.pojo;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
@@ -16,6 +17,7 @@ import java.util.stream.Collectors;
 @SuppressWarnings("unchecked")
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class Swap implements Serializable {
+    @JsonProperty
     private final List<Exchange> exchanges;
     private final boolean ordered;
 

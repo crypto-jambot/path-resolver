@@ -1,5 +1,6 @@
 package dev.rabbit.pojo;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.api.services.bigquery.model.TableRow;
 import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
@@ -15,7 +16,9 @@ import java.util.stream.Collectors;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class Path implements Serializable {
 
+    @JsonProperty
     private LinkedList<Node> tokenPath = new LinkedList<>();
+    @JsonProperty
     private LinkedList<Swap> swapPath = new LinkedList<>();
 
     public static Path of() {
