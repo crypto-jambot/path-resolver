@@ -70,7 +70,7 @@ public class ResolvePaths extends DoFn<Map<Node, List<Edge>>, Path> {
                 //    This implies a 2 trade path where the only option is swapping twice on the same pool.
                 if (nestedNode.equals(startingNode) && !(path.nodeSize() == 2 && nestedSwap.exchangeSize() == 1)) {
                     numPaths++;
-                    out.output(Path.of(path).addNode(nestedNode).addSwap(nestedSwap));
+                    out.output(Path.of(path).addNode(nestedNode).addSwap(nestedSwap).deriveUniquePools());
                 }
 
                 // If the path doesn't already contain the next node AND is within the search depth limit.

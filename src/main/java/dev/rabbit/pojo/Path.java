@@ -7,6 +7,7 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -20,6 +21,8 @@ public class Path implements Serializable {
     private LinkedList<Node> tokenPath = new LinkedList<>();
     @JsonProperty
     private LinkedList<Swap> swapPath = new LinkedList<>();
+    @JsonProperty
+    private HashSet<String> addresses = new HashSet<>();
 
     public static Path of() {
         return new Path();
@@ -75,5 +78,14 @@ public class Path implements Serializable {
         tableRow.put("tokenPath", tokenPathField);
         tableRow.put("swapPath", swapPathField);
         return tableRow;
+    }
+
+    public Path deriveUniquePools() {
+        this.swapPath.forEach(swap -> {
+            swap.getExchanges().forEach(exchange -> {
+                this.addresses.add(exchange.getPool());
+            });
+        });
+        return this;
     }
 }
