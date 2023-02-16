@@ -1,7 +1,5 @@
 package dev.rabbit;
 
-import com.google.cloud.storage.Blob;
-import com.google.cloud.storage.StorageOptions;
 import dev.rabbit.doFn.ResolvePaths;
 import dev.rabbit.function.MakeImmutableFn;
 import dev.rabbit.transform.BuildGraph;
@@ -18,8 +16,6 @@ import org.apache.beam.sdk.values.TypeDescriptors;
 public class PathResolverPipeline {
 
     public static void run(PathResolverPipelineOptions options) {
-
-        StorageOptions.getDefaultInstance().getService().get("resolved-paths").list().iterateAll().forEach(Blob::delete);
 
         Pipeline pipeline = Pipeline.create(options);
 
