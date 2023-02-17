@@ -9,5 +9,4 @@ environment:
 parameters:
   gcpProject: crypto-351521
   queryString: SELECT * FROM `crypto-351521.ethereum_v2.graph`
-  destinationTable: crypto-351521:ethereum_v2.paths
   shardNumber: 1000
