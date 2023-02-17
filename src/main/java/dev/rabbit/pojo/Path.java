@@ -1,7 +1,6 @@
 package dev.rabbit.pojo;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.google.api.services.bigquery.model.TableRow;
 import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
@@ -9,16 +8,13 @@ import lombok.NoArgsConstructor;
 import java.io.Serializable;
 import java.util.HashSet;
 import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 @EqualsAndHashCode
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class Path implements Serializable {
 
     @JsonProperty
-    private LinkedList<Node> tokenPath = new LinkedList<>();
+    private LinkedList<String> tokenPath = new LinkedList<>();
     @JsonProperty
     private LinkedList<Swap> swapPath = new LinkedList<>();
     @JsonProperty
@@ -30,12 +26,12 @@ public class Path implements Serializable {
 
     public static Path of(Path path) {
         Path newPath = new Path();
-        newPath.tokenPath = (LinkedList<Node>) path.tokenPath.clone();
+        newPath.tokenPath = (LinkedList<String>) path.tokenPath.clone();
         newPath.swapPath = (LinkedList<Swap>) path.swapPath.clone();
         return newPath;
     }
 
-    public Path addNode(Node node) {
+    public Path addNode(String node) {
         tokenPath.addLast(node);
         return this;
     }
@@ -55,7 +51,7 @@ public class Path implements Serializable {
         return this;
     }
 
-    public boolean containsNode(Node node) {
+    public boolean containsNode(String node) {
         return tokenPath.contains(node);
     }
 
@@ -71,19 +67,10 @@ public class Path implements Serializable {
         return swapPath.size();
     }
 
-    public TableRow toTableRow() {
-        TableRow tableRow = new TableRow();
-        List<Map<String, Object>> tokenPathField = tokenPath.stream().map(Node::toMap).collect(Collectors.toList());
-        List<Map<String, Object>> swapPathField = swapPath.stream().map(Swap::toMap).collect(Collectors.toList());
-        tableRow.put("tokenPath", tokenPathField);
-        tableRow.put("swapPath", swapPathField);
-        return tableRow;
-    }
-
     public Path deriveUniquePools() {
         this.swapPath.forEach(swap -> {
             swap.getExchanges().forEach(exchange -> {
-                this.addresses.add(exchange.getPool());
+                this.addresses.add(exchange.getPool() + swap.isOrdered());
             });
         });
         return this;
