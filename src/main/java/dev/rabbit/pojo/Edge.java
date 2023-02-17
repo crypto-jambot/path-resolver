@@ -12,10 +12,10 @@ import java.util.Map;
 @EqualsAndHashCode
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class Edge implements Serializable {
-    private final Node node;
+    private final String node;
     private final Swap swap;
 
-    public static Edge of(Node node, Map<String, Object> swapMap) {
+    public static Edge of(String node, Map<String, Object> swapMap) {
         return new Edge(node, Swap.of(swapMap));
     }
 }

@@ -14,16 +14,10 @@ public interface PathResolverPipelineOptions extends GcpOptions {
     void setGcpProject(ValueProvider<String> value);
 
     @Required
-    @Default.String("SELECT * FROM `crypto-351521.ethereum_v2.graph`")
+    @Default.String("SELECT * FROM `crypto-351521.ethereum_v2.graph_optimized`")
     ValueProvider<String> getQueryString();
 
     void setQueryString(ValueProvider<String> value);
-
-    @Required
-    @Default.String("crypto-351521:ethereum_v2.paths")
-    ValueProvider<String> getDestinationTable();
-
-    void setDestinationTable(ValueProvider<String> value);
 
     @Required
     @Default.Integer(1000)

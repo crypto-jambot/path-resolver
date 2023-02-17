@@ -1,7 +1,6 @@
 package dev.rabbit.doFn;
 
 import dev.rabbit.pojo.Edge;
-import dev.rabbit.pojo.Node;
 import dev.rabbit.pojo.NodeList;
 import dev.rabbit.pojo.Path;
 import dev.rabbit.pojo.Swap;
@@ -10,16 +9,16 @@ import org.apache.beam.sdk.transforms.DoFn;
 import java.util.List;
 import java.util.Map;
 
-public class ResolvePaths extends DoFn<Map<Node, List<Edge>>, Path> {
+public class ResolvePaths extends DoFn<Map<String, List<Edge>>, Path> {
 
     public static ResolvePaths of() {
         return new ResolvePaths();
     }
 
     @ProcessElement
-    public void processElement(@Element Map<Node, List<Edge>> element, OutputReceiver<Path> out) {
+    public void processElement(@Element Map<String, List<Edge>> element, OutputReceiver<Path> out) {
         for (NodeList nodeInfo : NodeList.values()) {
-            System.out.println("Starting the algorithm for " + nodeInfo.getNode().getName() + " with a search depth of " + nodeInfo.getSearchDepth());
+            System.out.println("Starting the algorithm for " + nodeInfo.getNode() + " with a search depth of " + nodeInfo.getSearchDepth());
             long startTime = System.currentTimeMillis();
             long numPaths = new DepthFirstSearch(nodeInfo, element, out).run();
             long endTime = System.currentTimeMillis();
@@ -29,14 +28,14 @@ public class ResolvePaths extends DoFn<Map<Node, List<Edge>>, Path> {
     }
 
     private static class DepthFirstSearch {
-        private final Node startingNode;
+        private final String startingNode;
         private final Path path = Path.of();
         private int numPaths = 0;
         private final int searchDepth;
-        private final Map<Node, List<Edge>> graph;
+        private final Map<String, List<Edge>> graph;
         private final OutputReceiver<Path> out;
 
-        public DepthFirstSearch(NodeList nodeList, Map<Node, List<Edge>> graph, OutputReceiver<Path> out) {
+        public DepthFirstSearch(NodeList nodeList, Map<String, List<Edge>> graph, OutputReceiver<Path> out) {
             startingNode = nodeList.getNode();
             path.addNode(startingNode);
             searchDepth = nodeList.getSearchDepth();
@@ -60,7 +59,7 @@ public class ResolvePaths extends DoFn<Map<Node, List<Edge>>, Path> {
 
         private void dfs(Edge edge) {
             graph.get(edge.getNode()).forEach(nestedEdge -> {
-                Node nestedNode = nestedEdge.getNode();
+                String nestedNode = nestedEdge.getNode();
                 Swap nestedSwap = nestedEdge.getSwap();
                 // Conditions must be met to be a valid path
                 // 1. The ending node must equal the starting node. ex. WETH -> TOKEN_2 -> TOKEN_N -> WETH
@@ -70,7 +69,7 @@ public class ResolvePaths extends DoFn<Map<Node, List<Edge>>, Path> {
                 //    This implies a 2 trade path where the only option is swapping twice on the same pool.
                 if (nestedNode.equals(startingNode) && !(path.nodeSize() == 2 && nestedSwap.exchangeSize() == 1)) {
                     numPaths++;
-                    out.output(Path.of(path).addNode(nestedNode).addSwap(nestedSwap).deriveUniquePools());
+                    out.output(Path.of(path).addSwap(nestedSwap).deriveUniquePools());
                 }
 
                 // If the path doesn't already contain the next node AND is within the search depth limit.
