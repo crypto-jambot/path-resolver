@@ -12,6 +12,7 @@ import org.apache.beam.sdk.io.gcp.bigquery.BigQueryIO;
 import org.apache.beam.sdk.transforms.Combine;
 import org.apache.beam.sdk.transforms.MapElements;
 import org.apache.beam.sdk.transforms.ParDo;
+import org.apache.beam.sdk.transforms.Reshuffle;
 import org.apache.beam.sdk.values.TypeDescriptor;
 
 import java.util.Arrays;
@@ -31,6 +32,7 @@ public class PathResolverPipeline {
                 .apply("Build the graph", Combine.globally(BuildGraph.of()))
                 .apply("Make the graph Immutable", MapElements.via(MakeImmutableFn.of()))
                 .apply("Run a DFS and resolve all possible paths", ParDo.of(ResolvePaths.of()))
+                .apply("Break Fusion", Reshuffle.viaRandomKey())
                 .apply("Map Path objects to TableRows", MapElements.into(TypeDescriptor.of(TableRow.class)).via(Path::toTableRow))
                 .apply("Write paths to table after truncating.", BigQueryIO.writeTableRows()
                         .to(options.getDestinationTable())

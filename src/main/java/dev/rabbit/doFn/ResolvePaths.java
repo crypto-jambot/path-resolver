@@ -45,6 +45,7 @@ public class ResolvePaths extends DoFn<Map<Node, List<Edge>>, Path> {
         }
 
         public int run() {
+            if (graph.get(startingNode) == null) return 0;
             List<Edge> edges = graph.get(startingNode);
             edges.forEach(edge -> {
                 // Add to the path.
