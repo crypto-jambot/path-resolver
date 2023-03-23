@@ -4,7 +4,7 @@
 
     <groupId>dev.rabbit</groupId>
     <artifactId>path-resolver</artifactId>
-    <version>2.0.2-SNAPSHOT</version>
+    <version>2.0.2</version>
 
     <packaging>jar</packaging>
 
@@ -22,7 +22,7 @@
         <connection>scm:git:${connection}</connection>
         <developerConnection>scm:git:${connection}</developerConnection>
         <url>${connection}</url>
-        <tag>path-resolver-1.0.0</tag>
+        <tag>path-resolver-2.0.2</tag>
     </scm>
 
     <build>
