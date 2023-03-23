@@ -1,9 +1,9 @@
 package dev.rabbit.pojo;
 
 public enum NodeList {
-    WETH(new Node("Wrapped Ether", "WETH", "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2", 18), 4),
-    USDC(new Node("USD Coin", "USDC", "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48", 6), 4),
-    DAI(new Node("Dai Stablecoin", "DAI", "0x6B175474E89094C44Da98b954EedeAC495271d0F", 18), 4);
+    WETH(new Node("Wrapped Ether", "WETH", "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2", 18), 5),
+    USDC(new Node("USD Coin", "USDC", "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48", 6), 5),
+    DAI(new Node("Dai Stablecoin", "DAI", "0x6B175474E89094C44Da98b954EedeAC495271d0F", 18), 5);
 
     // Stored for future use
 
