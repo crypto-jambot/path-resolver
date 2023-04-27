@@ -69,7 +69,8 @@ public class PathResolverPipeline {
                                                                 Arrays.asList(
                                                                         new TableFieldSchema().setName("name").setType("STRING").setMode("REQUIRED"),
                                                                         new TableFieldSchema().setName("fee").setType("INTEGER").setMode("REQUIRED"),
-                                                                        new TableFieldSchema().setName("pool").setType("STRING").setMode("REQUIRED"))),
+                                                                        new TableFieldSchema().setName("pool").setType("STRING").setMode("REQUIRED"),
+                                                                        new TableFieldSchema().setName("tickSpacing").setType("INTEGER").setMode("NULLABLE"))),
                                                 new TableFieldSchema().setName("ordered").setType("BOOL").setMode("REQUIRED")))));
     }
 }
