@@ -4,6 +4,7 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import org.springframework.util.ObjectUtils;
 
 import java.io.Serializable;
 import java.util.HashMap;
@@ -23,7 +24,7 @@ public class Exchange implements Serializable {
                 (String) exchangeMap.get("name"),
                 Integer.parseInt((String) exchangeMap.get("fee")),
                 (String) exchangeMap.get("pool"),
-                (int) exchangeMap.get("tickSpacing"));
+                ObjectUtils.isEmpty(exchangeMap.get("tickSpacing")) ? null : Integer.parseInt((String) exchangeMap.get("tickSpacing")));
     }
 
     public Map<String, Object> toMap() {
