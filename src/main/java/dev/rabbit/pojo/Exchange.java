@@ -17,7 +17,7 @@ public class Exchange implements Serializable {
     private final String name;
     private final int fee;
     private final String pool;
-    private final int tickSpacing;
+    private final Integer tickSpacing;
 
     public static <K, V> Exchange of(Map<K, V> exchangeMap) {
         return new Exchange(
