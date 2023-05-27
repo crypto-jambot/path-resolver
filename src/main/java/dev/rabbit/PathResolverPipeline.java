@@ -22,7 +22,6 @@ public class PathResolverPipeline {
     public static void run(PathResolverPipelineOptions options) {
 
         Pipeline pipeline = Pipeline.create(options);
-        options.setEnableStreamingEngine(true);
 
         pipeline.apply("Query for graph data", BigQueryIO.readTableRows()
                         .fromQuery(options.getQueryString())
@@ -31,7 +30,7 @@ public class PathResolverPipeline {
                         .usingStandardSql())
                 .apply("Build the graph", Combine.globally(BuildGraph.of()))
                 .apply("Make the graph Immutable", MapElements.via(MakeImmutableFn.of()))
-                .apply("Run a DFS and resolve all possible paths", ParDo.of(ResolvePaths.of()))
+                .apply("Run a DFS and resolve all possible paths", ParDo.of(ResolvePaths.of(options.getSearchDepth())))
                 .apply("Break Fusion", Reshuffle.viaRandomKey())
                 .apply("Map Path objects to TableRows", MapElements.into(TypeDescriptor.of(TableRow.class)).via(Path::toTableRow))
                 .apply("Write paths to table after truncating.", BigQueryIO.writeTableRows()

@@ -24,4 +24,10 @@ public interface PathResolverPipelineOptions extends GcpOptions {
     ValueProvider<String> getDestinationTable();
 
     void setDestinationTable(ValueProvider<String> value);
+
+    @Required
+    @Default.Integer(3)
+    ValueProvider<Integer> getSearchDepth();
+
+    void setSearchDepth(ValueProvider<Integer> searchDepth);
 }

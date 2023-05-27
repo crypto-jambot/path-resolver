@@ -5,20 +5,27 @@ import dev.rabbit.pojo.Node;
 import dev.rabbit.pojo.NodeList;
 import dev.rabbit.pojo.Path;
 import dev.rabbit.pojo.Swap;
+import lombok.AllArgsConstructor;
+import org.apache.beam.sdk.options.ValueProvider;
 import org.apache.beam.sdk.transforms.DoFn;
 
 import java.util.List;
 import java.util.Map;
 
+@AllArgsConstructor
 public class ResolvePaths extends DoFn<Map<Node, List<Edge>>, Path> {
+    private final ValueProvider<Integer> searchDepth;
 
-    public static ResolvePaths of() {
-        return new ResolvePaths();
+    public static ResolvePaths of(ValueProvider<Integer> searchDepth) {
+        return new ResolvePaths(searchDepth);
     }
 
     @ProcessElement
     public void processElement(@Element Map<Node, List<Edge>> element, OutputReceiver<Path> out) {
         for (NodeList nodeInfo : NodeList.values()) {
+            if(!nodeInfo.isOverrideSearchDepth()) {
+                nodeInfo.setSearchDepth(searchDepth.get());
+            }
             System.out.println("Starting the algorithm for " + nodeInfo.getNode().getName() + " with a search depth of " + nodeInfo.getSearchDepth());
             long startTime = System.currentTimeMillis();
             long numPaths = new DepthFirstSearch(nodeInfo, element, out).run();
